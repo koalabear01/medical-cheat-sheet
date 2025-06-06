@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Vitals Cheat Sheet</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for a clean, modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for finer control and consistency */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Styles for the disclaimer modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 1rem; /* More rounded */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Accordion specific styles */
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background-color: #e2e8f0; /* Tailwind's gray-200 */
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 1.5rem; /* Padding applied when open */
+        }
+
+        .accordion-content.open {
+            max-height: 2000px; /* Sufficiently large to show all content */
+            padding: 1.5rem;
+        }
+
+        .rotate-icon {
+            transform: rotate(0deg);
+            transition: transform 0.3s ease;
+        }
+
+        .rotate-icon.rotated {
+            transform: rotate(90deg);
+        }
+
+        /* Responsive table for smaller screens */
+        @media (max-width: 768px) {
+            table {
+                border: none; /* Remove outer table border for cleaner stacking */
+            }
+            table, thead, tbody, th, td, tr {
+                display: block; /* Stack elements */
+            }
+
+            thead tr {
+                position: absolute; /* Hide table headers visually */
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 0.5rem;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                display: flex; /* Make row a flex container */
+                flex-direction: column; /* Stack cells vertically */
+            }
+
+            td {
+                border: none; /* Remove cell borders */
+                border-bottom: 1px solid #e2e8f0; /* Only bottom border for visual separation */
+                position: relative;
+                padding: 0.75rem 1rem; /* Adjust padding for better look */
+                text-align: right; /* Content aligns right */
+                display: flex; /* Make td a flex container for label and value */
+                justify-content: space-between; /* Space out label and value */
+                align-items: flex-start; /* Align content to top if multiple lines */
+                flex-wrap: wrap; /* Allow content inside td to wrap */
+            }
+
+            td:last-child {
+                border-bottom: 0;
+            }
+
+            td:before {
+                content: attr(data-label); /* Display the header as a label */
+                font-weight: 600;
+                text-align: left;
+                flex-shrink: 0; /* Prevent label from shrinking */
+                flex-grow: 0; /* Prevent label from growing */
+                margin-right: 1rem; /* Space between label and content */
+                color: #555; /* Slightly darker for label */
+            }
+
+            /* Ensure lists within cells are properly aligned */
+            td ul {
+                text-align: right;
+                list-style-position: inside;
+            }
+        }
+
+        /* Responsive font sizes for header */
+        @media (max-width: 640px) {
+            .header-h1 {
+                font-size: 3rem; /* Smaller for very small screens */
+            }
+            .header-p {
+                font-size: 1rem;
+            }
+        }
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .header-h1 {
+                font-size: 4rem; /* Medium for tablets */
+            }
+            .header-p {
+                font-size: 1.125rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .header-h1 {
+                font-size: 5rem; /* Original large size for desktop */
+            }
+            .header-p {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-button" onclick="closeModal()">&times;</button>
+            <h3 class="text-2xl font-bold text-red-600 mb-4">Important Disclaimer</h3>
+            <p class="text-gray-700 mb-4">
+                This cheat sheet is provided for **educational purposes only** and is intended for medical students as a quick reference.
+                It **should not be used for actual medical diagnosis, treatment, or patient care.**
+            </p>
+            <p class="text-gray-700 mb-6">
+                Reference ranges can vary slightly between laboratories due to different methodologies and equipment.
+                **Always refer to official lab reports and consult with qualified medical professionals for accurate patient results and clinical decisions.**
+            </p>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out" onclick="closeModal()">
+                I Understand
+            </button>
+        </div>
+    </div>
+
+    <header class="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-8 shadow-lg text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="header-h1 font-extrabold mb-2 tracking-tight">
+                <span class="block">Medical Vitals</span>
+                <span class="block">Cheat Sheet</span>
+            </h1>
+            <p class="header-p opacity-90">Your Quick Reference for Normal Lab Values</p>
+            <img src="https://placehold.co/150x150/60a5fa/ffffff?text=🩺" alt="Medical Icon" class="mx-auto mt-4 rounded-full shadow-lg">
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+            Explore the normal and acceptable ranges for various vital signs and lab reports. Click on each section to expand and view details.
+        </p>
+
+        <!-- CBC Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-blue-100 text-blue-800 rounded-lg font-semibold text-lg">
+                <h2>Complete Blood Count (CBC)</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span> <!-- Right-pointing triangle -->
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-blue-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">White Blood Cell (WBC) Count</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">4,000-11,000 cells/µL (or 4.0-11.0 x 10^9/L)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Infection, inflammation, leukemia, stress</li>
+                                    <li>Low: Bone marrow problems, autoimmune diseases, severe infections, certain medications</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Red Blood Cell (RBC) Count</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Men: 4.5-5.5 million/µL<br>Women: 4.0-5.0 million/µL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Dehydration, polycythemia vera</li>
+                                    <li>Low: Anemia, blood loss, chronic kidney disease</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Hemoglobin (Hb)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Men: 13.5-17.5 g/dL<br>Women: 12.0-15.5 g/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Dehydration, polycythemia</li>
+                                    <li>Low: Anemia (iron deficiency, vitamin B12 deficiency, etc.)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Hematocrit (Hct)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Men: 40-50%<br>Women: 35-45%</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Dehydration, polycythemia</li>
+                                    <li>Low: Anemia, blood loss, overhydration</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Mean Corpuscular Volume (MCV)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">80-100 fL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Macrocytic anemia (e.g., B12 or folate deficiency)</li>
+                                    <li>Low: Microcytic anemia (e.g., iron deficiency)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Mean Corpuscular Hemoglobin (MCH)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">27-33 pg</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Macrocytic anemia</li>
+                                    <li>Low: Microcytic anemia</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Mean Corpuscular Hemoglobin Concentration (MCHC)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">32-36 g/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Hereditary spherocytosis, severe dehydration</li>
+                                    <li>Low: Iron deficiency anemia, thalassemia</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Red Cell Distribution Width (RDW)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">11.5-14.5%</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Variation in RBC size (anemia, some liver diseases)</li>
+                                    <li>Normal: Uniform RBC size</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Platelet Count</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">150,000-450,000 cells/µL (or 150-450 x 10^9/L)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Thrombocytosis (infection, inflammation, cancer)</li>
+                                    <li>Low: Thrombocytopenia (bone marrow suppression, autoimmune, medications)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- LFT Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-green-100 text-green-800 rounded-lg font-semibold text-lg">
+                <h2>Liver Function Test (LFT) / Liver Panel</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-green-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Alanine Aminotransferase (ALT/SGPT)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 50 U/L (some labs &lt; 36 U/L)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Liver cell damage (hepatitis, fatty liver, drug-induced liver injury)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Aspartate Aminotransferase (AST/SGOT)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 50 U/L (some labs &lt; 35 U/L)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Liver cell damage, muscle injury, heart attack</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Alkaline Phosphatase (ALP)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">40-150 U/L (varies by age/sex)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Bile duct obstruction, bone diseases, pregnancy</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Total Bilirubin</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">0.3-1.2 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Jaundice, liver disease, red blood cell breakdown</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Direct (Conjugated) Bilirubin</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">0.0-0.3 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Bile duct obstruction, impaired bilirubin excretion</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Indirect (Unconjugated) Bilirubin</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">0.1-1.0 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Hemolysis, Gilbert's syndrome</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Total Protein</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">6.0-8.3 g/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Dehydration, chronic inflammation</li>
+                                    <li>Low: Liver disease, kidney disease, malnutrition</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Albumin</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">3.5-5.0 g/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Dehydration</li>
+                                    <li>Low: Liver disease, kidney disease, malnutrition, chronic inflammation</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Globulin</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">2.0-3.5 g/dL (Calculated: Total Protein - Albumin)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Chronic infection, autoimmune diseases</li>
+                                    <li>Low: Immunodeficiency</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Gamma-Glutamyl Transferase (GGT)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">9-48 U/L</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Liver disease (especially with alcohol or certain medications), bile duct issues</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- KFT Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-red-100 text-red-800 rounded-lg font-semibold text-lg">
+                <h2>Kidney Function Test (KFT) / Renal Panel</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-red-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Blood Urea Nitrogen (BUN)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">7-20 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Kidney dysfunction, dehydration, high protein diet</li>
+                                    <li>Low: Liver disease, malnutrition, overhydration</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Creatinine (Cr)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Men: 0.7-1.3 mg/dL<br>Women: 0.6-1.1 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Kidney dysfunction, muscle damage</li>
+                                    <li>Low: Low muscle mass, liver disease</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">eGFR (Estimated Glomerular Filtration Rate)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&gt; 60 mL/min/1.73 m²</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Low: Kidney disease/impairment</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Sodium (Na+)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">135-145 mEq/L</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High (Hypernatremia): Dehydration, diabetes insipidus</li>
+                                    <li>Low (Hyponatremia): Overhydration, heart failure, kidney disease, certain medications</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Potassium (K+)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">3.5-5.0 mEq/L</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High (Hyperkalemia): Kidney failure, acidosis, certain medications</li>
+                                    <li>Low (Hypokalemia): Diarrhea, vomiting, diuretic use, alkalosis</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Chloride (Cl-)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">96-106 mEq/L</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High (Hyperchloremia): Dehydration, kidney disease, certain medications</li>
+                                    <li>Low (Hypochloremia): Vomiting, overhydration, heart failure</li>
+                                    </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Bicarbonate (HCO3-) / CO2</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">22-29 mEq/L</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High (Metabolic Alkalosis): Vomiting, diuretic use</li>
+                                    <li>Low (Metabolic Acidosis): Kidney disease, diabetic ketoacidosis, diarrhea</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Calcium (Ca)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">8.5-10.5 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High (Hypercalcemia): Hyperparathyroidism, cancer</li>
+                                    <li>Low (Hypocalcemia): Hypoparathyroidism, vitamin D deficiency, kidney failure</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Phosphorus (P)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">2.5-4.5 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High (Hyperphosphatemia): Kidney failure, hypoparathyroidism</li>
+                                    <li>Low (Hypophosphatemia): Malnutrition, vitamin D deficiency, hyperparathyroidism</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Uric Acid</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Men: 3.5-7.2 mg/dL<br>Women: 2.6-6.0 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Gout, kidney disease, certain medications, high purine diet</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Lipid Profile Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-yellow-100 text-yellow-800 rounded-lg font-semibold text-lg">
+                <h2>Lipid Profile</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-yellow-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Total Cholesterol</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 200 mg/dL (Desirable)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Increased risk of cardiovascular disease</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">LDL Cholesterol (Bad Cholesterol)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 100 mg/dL (Optimal)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Increased risk of atherosclerosis and heart disease</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">HDL Cholesterol (Good Cholesterol)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&gt; 60 mg/dL (Optimal)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Low: Increased risk of cardiovascular disease</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Triglycerides</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 150 mg/dL (Normal)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Increased risk of heart disease, pancreatitis</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Thyroid Profile Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-purple-100 text-purple-800 rounded-lg font-semibold text-lg">
+                <h2>Thyroid Profile</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-purple-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">TSH (Thyroid Stimulating Hormone)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">0.4-4.0 mIU/L (some labs 0.4-4.5)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Hypothyroidism (underactive thyroid)</li>
+                                    <li>Low: Hyperthyroidism (overactive thyroid)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Free T4 (Free Thyroxine)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">0.8-1.8 ng/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Hyperthyroidism</li>
+                                    <li>Low: Hypothyroidism</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Free T3 (Free Triiodothyronine)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">2.3-4.2 pg/mL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Hyperthyroidism</li>
+                                    <li>Low: Hypothyroidism</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Blood Sugar Tests Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-orange-100 text-orange-800 rounded-lg font-semibold text-lg">
+                <h2>Blood Sugar Tests</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-orange-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Fasting Blood Sugar (FBS)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 100 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Prediabetes: 100-125 mg/dL</li>
+                                    <li>Diabetes: $\ge$ 126 mg/dL (on two separate occasions)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Random Blood Sugar</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 140 mg/dL</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Diabetes: $\ge$ 200 mg/dL (with symptoms)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">HbA1c (Glycated Hemoglobin)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 5.7%</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Prediabetes: 5.7% - 6.4%</li>
+                                    <li>Diabetes: $\ge$ 6.5%</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Inflammatory Markers Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-pink-100 text-pink-800 rounded-lg font-semibold text-lg">
+                <h2>Inflammatory Markers</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-pink-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">C-Reactive Protein (CRP)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 1.0 mg/dL (or &lt; 10 mg/L)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Inflammation, infection, tissue injury, cardiovascular risk</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Erythrocyte Sedimentation Rate (ESR)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Men &lt; 50 years: &lt; 15 mm/hr<br>Men $\ge$ 50 years: &lt; 20 mm/hr<br>Women &lt; 50 years: &lt; 20 mm/hr<br>Women $\ge$ 50 years: &lt; 30 mm/hr</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Inflammation, infection, autoimmune diseases, certain cancers</li>
+                                    <li>*Note: Affected by age and sex.*</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Vitamin Levels Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-teal-100 text-teal-800 rounded-lg font-semibold text-lg">
+                <h2>Vitamin Levels</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-teal-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Vitamin D (25-hydroxyvitamin D)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Sufficient: $\ge$ 30 ng/mL (75 nmol/L)<br>Optimal: 40-60 ng/mL (100-150 nmol/L)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Deficient: &lt; 20 ng/mL (50 nmol/L)</li>
+                                    <li>Insufficient: 20-29 ng/mL (50-74 nmol/L)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Vitamin B12</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">200 - 900 pg/mL (ranges can vary)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Low: Deficiency (can cause anemia, neurological issues)</li>
+                                    <li>*Note: Active B12 (holotranscobalamin) is a more accurate marker.*</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Arterial Blood Gas (ABG) Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-indigo-100 text-indigo-800 rounded-lg font-semibold text-lg">
+                <h2>Arterial Blood Gas (ABG)</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-indigo-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">pH</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">7.35 - 7.45</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>&lt; 7.35: Acidosis</li>
+                                    <li>&gt; 7.45: Alkalosis</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">PaO2 (Partial pressure of oxygen)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">75 - 100 mmHg</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Low: Hypoxemia (respiratory failure, lung disease)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">PaCO2 (Partial pressure of carbon dioxide)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">35 - 45 mmHg</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>&lt; 35 mmHg: Respiratory Alkalosis (hyperventilation)</li>
+                                    <li>&gt; 45 mmHg: Respiratory Acidosis (hypoventilation)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">HCO3- (Bicarbonate)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">22 - 26 mEq/L</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>&lt; 22 mEq/L: Metabolic Acidosis</li>
+                                    <li>&gt; 26 mEq/L: Metabolic Alkalosis</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">SaO2 (Oxygen Saturation)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">95% - 100%</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Low: Hypoxemia</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Cardiac Markers Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-gray-100 text-gray-800 rounded-lg font-semibold text-lg">
+                <h2>Cardiac Markers (Acute Events)</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <p class="text-gray-700 mb-4">
+                    These markers are primarily used in acute settings (e.g., emergency department) to diagnose myocardial injury (heart attack).
+                </p>
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-gray-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Range (Adults)</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Troponin I / T</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">Very low, often below detection limit (e.g., &lt; 0.04 ng/mL, varies by lab/assay)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Any detectable rise or rise above specific cutoff: Indicates myocardial injury (e.g., heart attack)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Creatine Kinase-MB (CK-MB)</td>
+                            <td class="py-3 px-4" data-label="Normal Range (Adults)">&lt; 3-5 ng/mL or &lt; 5% of total CK (values vary by lab)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Myocardial injury (less specific than troponin, also found in skeletal muscle injury)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Urine Routine & Microscopic Examination Section -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <div class="accordion-header flex justify-between items-center py-3 px-4 bg-cyan-100 text-cyan-800 rounded-lg font-semibold text-lg">
+                <h2>Urine Routine & Microscopic Examination</h2>
+                <span class="rotate-icon text-2xl">&#9654;</span>
+            </div>
+            <div class="accordion-content">
+                <p class="text-gray-700 mb-4">
+                    Urine routine examination assesses the physical, chemical, and microscopic properties of urine.
+                </p>
+                <h3 class="text-xl font-semibold text-cyan-700 mb-3">Physical Examination</h3>
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-cyan-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Finding</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Color</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Pale yellow to Amber</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Abnormal: Dark yellow, orange, red, brown, cloudy (hydration, medications, infection)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Clarity/Appearance</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Clear</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Abnormal: Hazy, cloudy, turbid (infection, crystals, cells)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Specific Gravity</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">1.005-1.030</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Dehydration, concentrated urine</li>
+                                    <li>Low: Overhydration, kidney disease, diabetes insipidus</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">pH</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">4.5-8.0 (Average 6.0)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Abnormal: Highly acidic/alkaline (diet, infection, kidney stones)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="text-xl font-semibold text-cyan-700 mt-6 mb-3">Chemical Examination (Dipstick)</h3>
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-cyan-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Finding</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Protein</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Negative</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Positive: Kidney damage, infection, inflammation, exercise</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Glucose</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Negative</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Positive: Diabetes mellitus, kidney tubule damage</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Ketones</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Negative</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Positive: Diabetic ketoacidosis, starvation, low-carb diet</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Blood</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Negative</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Positive: Kidney stones, UTI, kidney injury, menstruation</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Nitrite</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Negative</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Positive: Bacterial infection (UTI)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Leukocyte Esterase</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Negative</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Positive: Infection (presence of WBCs)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Bilirubin</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Negative</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Positive: Liver disease, bile duct obstruction</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Urobilinogen</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Small amount (0.2-1.0 mg/dL)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>High: Liver disease, hemolytic anemia</li>
+                                    <li>Low/Absent: Bile duct obstruction</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="text-xl font-semibold text-cyan-700 mt-6 mb-3">Microscopic Examination</h3>
+                <table class="min-w-full bg-white rounded-lg overflow-hidden mt-4">
+                    <thead class="bg-cyan-500 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">Parameter</th>
+                            <th class="py-3 px-4 text-left">Normal Finding</th>
+                            <th class="py-3 px-4 text-left">Common Interpretations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">RBCs</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">0-2/HPF (High Power Field)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Increased: Kidney stones, UTI, kidney injury, glomerulonephritis</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">WBCs</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">0-5/HPF</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Increased: Infection (UTI), inflammation</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Epithelial Cells</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Few</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Increased: Contamination, inflammation of urinary tract</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Casts</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Absent (Hyaline casts, few, may be normal)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Present: Kidney disease (e.g., RBC casts in glomerulonephritis, WBC casts in pyelonephritis)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4" data-label="Parameter">Crystals</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Few (e.g., Calcium Oxalate, Uric Acid)</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Increased: Kidney stones, metabolic disorders, diet</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="py-3 px-4" data-label="Parameter">Bacteria/Yeast</td>
+                            <td class="py-3 px-4" data-label="Normal Finding">Absent</td>
+                            <td class="py-3 px-4" data-label="Common Interpretations">
+                                <ul class="list-disc list-inside">
+                                    <li>Present: Infection (UTI)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 text-center shadow-inner">
+        <div class="container mx-auto px-4">
+            <p class="text-sm">&copy; 2025 Medical Vitals Cheat Sheet. All rights reserved.</p>
+            <p class="text-xs mt-2 opacity-80">
+                This content is for educational purposes only and not for clinical use.
+                Always consult qualified medical professionals for patient care.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for the disclaimer modal and accordion functionality
+
+        // Get the disclaimer modal and close button elements
+        const disclaimerModal = document.getElementById('disclaimerModal');
+
+        // Function to show the disclaimer modal
+        function showModal() {
+            disclaimerModal.classList.remove('hidden');
+        }
+
+        // Function to close the disclaimer modal
+        function closeModal() {
+            disclaimerModal.classList.add('hidden');
+        }
+
+        // Show the disclaimer modal when the page loads
+        window.onload = showModal;
+
+        // Accordion functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    // Get the content and icon associated with this header
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('.rotate-icon');
+
+                    // Toggle the 'open' class on the content
+                    content.classList.toggle('open');
+                    // Toggle the 'rotated' class on the icon
+                    icon.classList.toggle('rotated');
+
+                    // Close other open accordions (optional, but good for user experience)
+                    accordionHeaders.forEach(otherHeader => {
+                        if (otherHeader !== header) {
+                            const otherContent = otherHeader.nextElementSibling;
+                            const otherIcon = otherHeader.querySelector('.rotate-icon');
+                            otherContent.classList.remove('open');
+                            otherIcon.classList.remove('rotated');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
